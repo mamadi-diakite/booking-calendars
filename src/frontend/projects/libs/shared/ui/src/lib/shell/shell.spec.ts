@@ -7,7 +7,8 @@ import { Shell } from './shell';
 @Component({
   imports: [Shell],
   template: `<bc-shell appName="Booking Calendars" [apiStatus]="status()"
-    ><p>Page content</p></bc-shell
+    ><a shellNav href="/login">Log in</a>
+    <p>Page content</p></bc-shell
   >`,
 })
 class Host {
@@ -28,6 +29,7 @@ describe('Shell', () => {
     expect(home?.textContent?.trim()).toBe('Booking Calendars');
     expect(home?.getAttribute('href')).toBe('/');
     expect(element.querySelector('main p')?.textContent).toBe('Page content');
+    expect(element.querySelector('header nav a')?.textContent).toBe('Log in');
   });
 
   it.each([

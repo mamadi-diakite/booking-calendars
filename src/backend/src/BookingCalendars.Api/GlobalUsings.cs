@@ -1,2 +1,12 @@
+global using System.Security.Claims;
+global using BookingCalendars.Api.Auth;
+global using BookingCalendars.Application;
+global using BookingCalendars.Application.Auth;
+global using BookingCalendars.Application.Contracts.Auth;
+global using BookingCalendars.Domain;
 global using BookingCalendars.Infrastructure;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.IdentityModel.JsonWebTokens;
+global using Microsoft.IdentityModel.Tokens;

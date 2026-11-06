@@ -33,4 +33,11 @@ public sealed class User
     public string TimeZoneId { get; private set; } = TimeZones.Default;
 
     public DateTime CreatedAtUtc { get; private set; }
+
+    public static bool IsValidEmail([NotNullWhen(true)] string? email) => Guard.IsEmail(email, EmailMaxLength);
+
+    public void ChangePassword(string passwordHash) =>
+        PasswordHash = Guard.Required(passwordHash, nameof(passwordHash), PasswordHashMaxLength);
+
+    public void ChangeTimeZone(string timeZoneId) => TimeZoneId = Guard.TimeZone(timeZoneId, nameof(timeZoneId));
 }

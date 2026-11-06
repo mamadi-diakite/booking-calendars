@@ -1,5 +1,9 @@
+global using BookingCalendars.Application.Security;
+global using BookingCalendars.Application.Users;
 global using BookingCalendars.Domain;
 global using BookingCalendars.Infrastructure.Persistence;
+global using BookingCalendars.Infrastructure.Security;
+global using BookingCalendars.Infrastructure.Seeding;
 global using Microsoft.Data.Sqlite;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;

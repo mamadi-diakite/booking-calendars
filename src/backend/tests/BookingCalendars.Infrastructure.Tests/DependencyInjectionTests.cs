@@ -11,6 +11,46 @@ public sealed class DependencyInjectionTests
     }
 
     [Fact]
+    public async Task Registers_the_infrastructure_services()
+    {
+        await using var provider = new ServiceCollection()
+            .AddInfrastructure("Data Source=:memory:")
+            .BuildServiceProvider();
+        await using var scope = provider.CreateAsyncScope();
+
+        Assert.Same(TimeProvider.System, scope.ServiceProvider.GetRequiredService<TimeProvider>());
+        Assert.IsType<IdentityPasswordHasher>(scope.ServiceProvider.GetRequiredService<IPasswordHasher>());
+        Assert.IsType<UserRepository>(scope.ServiceProvider.GetRequiredService<IUserRepository>());
+        Assert.NotNull(scope.ServiceProvider.GetRequiredService<DemoDataSeeder>());
+    }
+
+    [Fact]
+    public void Keeps_a_time_provider_registered_before()
+    {
+        var fixedTime = new FixedTimeProvider(DateTimeOffset.UnixEpoch);
+        using var provider = new ServiceCollection()
+            .AddSingleton<TimeProvider>(fixedTime)
+            .AddInfrastructure("Data Source=:memory:")
+            .BuildServiceProvider();
+
+        Assert.Same(fixedTime, provider.GetRequiredService<TimeProvider>());
+    }
+
+    [Fact]
+    public async Task Seeds_demo_data_through_the_service_provider()
+    {
+        await using var provider = new ServiceCollection()
+            .AddInfrastructure("Data Source=seed-test;Mode=Memory;Cache=Shared")
+            .BuildServiceProvider();
+        await using var keepAlive = new SqliteConnection("Data Source=seed-test;Mode=Memory;Cache=Shared");
+        await keepAlive.OpenAsync();
+        await provider.ApplyMigrationsAsync();
+
+        Assert.True(await provider.SeedDemoDataAsync());
+        Assert.False(await provider.SeedDemoDataAsync());
+    }
+
+    [Fact]
     public async Task Creates_missing_data_folder_and_applies_migrations()
     {
         var root = Path.Combine(Path.GetTempPath(), "booking-calendars-tests", Guid.NewGuid().ToString("N"));

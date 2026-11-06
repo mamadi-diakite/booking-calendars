@@ -1,7 +1,13 @@
+global using BookingCalendars.Application.Security;
+global using BookingCalendars.Application.Users;
 global using BookingCalendars.Domain;
 global using BookingCalendars.Infrastructure.Persistence;
+global using BookingCalendars.Infrastructure.Security;
+global using BookingCalendars.Infrastructure.Seeding;
+global using Microsoft.AspNetCore.Identity;
 global using Microsoft.Data.Sqlite;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;

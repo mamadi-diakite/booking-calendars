@@ -22,6 +22,11 @@ internal static class Guard
         return HasEmailShape(email) ? email : throw new ArgumentException("Email is not valid.", paramName);
     }
 
+    public static bool IsEmail([NotNullWhen(true)] string? value, int maxLength) =>
+        !string.IsNullOrWhiteSpace(value)
+        && value.Trim().Length <= maxLength
+        && HasEmailShape(value.Trim().ToLowerInvariant());
+
     public static string TimeZone(string? value, string paramName)
     {
         var id = value?.Trim();

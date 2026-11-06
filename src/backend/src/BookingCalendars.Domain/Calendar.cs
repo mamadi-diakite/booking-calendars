@@ -25,10 +25,7 @@ public sealed class Calendar
     {
         Id = Guid.CreateVersion7();
         OwnerId = Guard.NotEmpty(ownerId, nameof(ownerId));
-        Title = Guard.Required(title, nameof(title), TitleMaxLength);
-        Description = Guard.Optional(description, nameof(description), DescriptionMaxLength);
-        LocationNote = Guard.Optional(locationNote, nameof(locationNote), LocationNoteMaxLength);
-        Slug = CalendarSlug.IsValid(slug) ? slug : throw new ArgumentException("Slug is not valid.", nameof(slug));
+        UpdateDetails(title, description, locationNote, slug);
         SetMeetingLengths(meetingLengths);
         CreatedAtUtc = Guard.Utc(createdAtUtc, nameof(createdAtUtc));
     }
@@ -53,6 +50,24 @@ public sealed class Calendar
     public IReadOnlyCollection<CalendarMeetingLength> MeetingLengths => _meetingLengths;
 
     public IReadOnlyCollection<WeeklyHoursRange> WeeklyHours => _weeklyHours;
+
+    public string PublicPath => $"/book/{Slug}";
+
+    /// <param name="slug">Unique among all calendars; the caller checks it is free.</param>
+    public void UpdateDetails(string title, string? description, string? locationNote, string slug)
+    {
+        var checkedTitle = Guard.Required(title, nameof(title), TitleMaxLength);
+        var checkedDescription = Guard.Optional(description, nameof(description), DescriptionMaxLength);
+        var checkedLocationNote = Guard.Optional(locationNote, nameof(locationNote), LocationNoteMaxLength);
+        Slug = CalendarSlug.IsValid(slug) ? slug : throw new ArgumentException("Slug is not valid.", nameof(slug));
+        Title = checkedTitle;
+        Description = checkedDescription;
+        LocationNote = checkedLocationNote;
+    }
+
+    public void Pause() => IsPaused = true;
+
+    public void Resume() => IsPaused = false;
 
     /// <summary>Replaces the offered lengths. Lengths kept in the list keep their identity.</summary>
     public void SetMeetingLengths(IEnumerable<MeetingLengthSettings> meetingLengths)

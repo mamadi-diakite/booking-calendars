@@ -2,7 +2,7 @@ namespace BookingCalendars.Api.IntegrationTests;
 
 public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixture<DemoDataApiFactory>
 {
-    private const string DemoPassword = "DemoPass123!";
+    private const string DemoPassword = ApiClients.DemoPassword;
 
     [Fact]
     public async Task Register_creates_a_user_and_returns_a_session()
@@ -63,7 +63,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     [Fact]
     public async Task Me_returns_the_logged_in_user()
     {
-        var client = await LoggedInClientAsync("theo.brandt@example.com", DemoPassword);
+        var client = await factory.LoggedInClientAsync("theo.brandt@example.com");
 
         var user = await client.GetFromJsonAsync<CurrentUserResponse>("/api/auth/me");
 
@@ -81,7 +81,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     public async Task A_token_without_a_user_id_is_refused()
     {
         var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TokenWithoutSubject());
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", factory.TokenWithoutSubject());
 
         await AssertProtectedEndpointsRefuse(client);
     }
@@ -90,14 +90,8 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     public async Task A_token_of_a_deleted_user_is_refused()
     {
         const string email = "temporary@example.com";
-        var client = await RegisteredClientAsync(email);
-
-        await using (var scope = factory.Services.CreateAsyncScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<BookingCalendarsDbContext>();
-            db.Users.Remove(db.Users.Single(u => u.Email == email));
-            await db.SaveChangesAsync();
-        }
+        var client = await factory.RegisteredClientAsync(email);
+        await factory.DeleteUserAsync(email);
 
         await AssertProtectedEndpointsRefuse(client);
     }
@@ -105,7 +99,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     [Fact]
     public async Task Change_password_with_errors_returns_a_validation_problem()
     {
-        var client = await LoggedInClientAsync("ines.moreau@example.com", DemoPassword);
+        var client = await factory.LoggedInClientAsync("ines.moreau@example.com");
 
         var response = await client.PostAsJsonAsync(
             "/api/auth/change-password", new ChangePasswordRequest("WrongPass789", "short", "other"));
@@ -118,7 +112,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     [Fact]
     public async Task Changed_password_replaces_the_old_one()
     {
-        var client = await RegisteredClientAsync("lea.marchand@example.com");
+        var client = await factory.RegisteredClientAsync("lea.marchand@example.com");
 
         var response = await client.PostAsJsonAsync(
             "/api/auth/change-password", new ChangePasswordRequest(DemoPassword, "NewPass456", "NewPass456"));
@@ -134,7 +128,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     [Fact]
     public async Task Changed_time_zone_is_returned_and_kept()
     {
-        var client = await RegisteredClientAsync("sam.okafor@example.com");
+        var client = await factory.RegisteredClientAsync("sam.okafor@example.com");
 
         var response = await client.PutAsJsonAsync("/api/auth/time-zone", new ChangeTimeZoneRequest("Africa/Lagos"));
 
@@ -146,7 +140,7 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
     [Fact]
     public async Task Unknown_time_zone_returns_a_validation_problem()
     {
-        var client = await RegisteredClientAsync("nina.vos@example.com");
+        var client = await factory.RegisteredClientAsync("nina.vos@example.com");
 
         var response = await client.PutAsJsonAsync("/api/auth/time-zone", new ChangeTimeZoneRequest("Lagos"));
 
@@ -162,43 +156,5 @@ public sealed class AuthEndpointsTests(DemoDataApiFactory factory) : IClassFixtu
             "/api/auth/change-password", new ChangePasswordRequest(DemoPassword, "NewPass456", "NewPass456"))).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PutAsJsonAsync(
             "/api/auth/time-zone", new ChangeTimeZoneRequest("UTC"))).StatusCode);
-    }
-
-    private async Task<HttpClient> RegisteredClientAsync(string email)
-    {
-        var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync(
-            "/api/auth/register", new RegisterRequest("Test User", email, DemoPassword, DemoPassword));
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", body!.AccessToken);
-
-        return client;
-    }
-
-    private async Task<HttpClient> LoggedInClientAsync(string email, string password)
-    {
-        var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(email, password));
-        response.EnsureSuccessStatusCode();
-        var body = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", body!.AccessToken);
-
-        return client;
-    }
-
-    private string TokenWithoutSubject()
-    {
-        var settings = factory.Services.GetRequiredService<JwtSettings>();
-
-        return new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
-        {
-            Issuer = settings.Issuer,
-            Audience = settings.Audience,
-            Expires = DateTime.UtcNow.AddMinutes(5),
-            Claims = new Dictionary<string, object> { [JwtClaims.Email] = "ghost@example.com" },
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(settings.SigningKey), SecurityAlgorithms.HmacSha256),
-        });
     }
 }

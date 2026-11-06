@@ -4,6 +4,7 @@ global using System.Net.Http.Json;
 global using System.Security.Claims;
 global using BookingCalendars.Api.Auth;
 global using BookingCalendars.Application.Contracts.Auth;
+global using BookingCalendars.Application.Contracts.Calendars;
 global using BookingCalendars.Domain;
 global using BookingCalendars.Infrastructure.Persistence;
 global using BookingCalendars.Infrastructure.Seeding;

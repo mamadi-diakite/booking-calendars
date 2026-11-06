@@ -27,6 +27,52 @@ public sealed class CalendarTests
     }
 
     [Fact]
+    public void Public_path_uses_the_slug()
+    {
+        Assert.Equal("/book/intro-call", NewCalendar().PublicPath);
+    }
+
+    [Fact]
+    public void Updates_the_details()
+    {
+        var calendar = NewCalendar(description: "Old", locationNote: "Old place");
+
+        calendar.UpdateDetails(" Discovery call ", null, " Phone ", "discovery-call");
+
+        Assert.Equal("Discovery call", calendar.Title);
+        Assert.Null(calendar.Description);
+        Assert.Equal("Phone", calendar.LocationNote);
+        Assert.Equal("discovery-call", calendar.Slug);
+    }
+
+    [Fact]
+    public void A_refused_update_changes_nothing()
+    {
+        var calendar = NewCalendar(description: "Kept");
+
+        Assert.Equal("slug", Assert.Throws<ArgumentException>(
+            () => calendar.UpdateDetails("New title", "New", null, "Not Valid")).ParamName);
+        Assert.Equal("title", Assert.Throws<ArgumentException>(
+            () => calendar.UpdateDetails(" ", "New", null, "new-slug")).ParamName);
+
+        Assert.Equal("Intro call", calendar.Title);
+        Assert.Equal("Kept", calendar.Description);
+        Assert.Equal("intro-call", calendar.Slug);
+    }
+
+    [Fact]
+    public void Pauses_and_resumes()
+    {
+        var calendar = NewCalendar();
+
+        calendar.Pause();
+        Assert.True(calendar.IsPaused);
+
+        calendar.Resume();
+        Assert.False(calendar.IsPaused);
+    }
+
+    [Fact]
     public void Description_and_location_note_are_optional()
     {
         var calendar = NewCalendar(description: " ", locationNote: null);

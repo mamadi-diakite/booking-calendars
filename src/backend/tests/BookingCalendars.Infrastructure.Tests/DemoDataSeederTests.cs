@@ -26,6 +26,42 @@ public sealed class DemoDataSeederTests : IDisposable
     }
 
     [Fact]
+    public async Task Seeds_the_owners_calendars_with_their_rules()
+    {
+        await SeedAsync();
+
+        await using var db = _database.CreateContext();
+        var calendars = await db.Calendars.Include(c => c.MeetingLengths).Include(c => c.WeeklyHours).ToListAsync();
+        var owners = await db.Users.Where(u => DemoDataSeeder.Owners.Select(o => o.Email).Contains(u.Email)).ToListAsync();
+
+        Assert.Equal(DemoDataSeeder.Calendars.Select(c => c.Slug).Order(), calendars.Select(c => c.Slug).Order());
+        Assert.All(calendars, c => Assert.Contains(owners, o => o.Id == c.OwnerId));
+        Assert.All(calendars, c => Assert.NotEmpty(c.MeetingLengths));
+        Assert.All(calendars, c => Assert.NotEmpty(c.WeeklyHours));
+        Assert.All(calendars, c => Assert.False(c.IsPaused));
+        var intro = calendars.Single(c => c.Slug == "mila-intro-call");
+        Assert.Equal(10, intro.WeeklyHours.Count);
+        Assert.Equal([15, 30], intro.MeetingLengths.Select(m => m.Minutes).Order());
+    }
+
+    [Fact]
+    public async Task Seeds_upcoming_blocked_periods_on_one_and_all_calendars()
+    {
+        await SeedAsync();
+
+        await using var db = _database.CreateContext();
+        var periods = await db.BlockedPeriods.OrderBy(p => p.StartDate).ToListAsync();
+        var coaching = await db.Calendars.SingleAsync(c => c.Slug == "mila-coaching-session");
+
+        Assert.Equal(2, periods.Count);
+        Assert.Equal(coaching.Id, periods[0].CalendarId);
+        Assert.Equal(new DateOnly(2026, 11, 15), periods[0].StartDate);
+        Assert.Null(periods[1].CalendarId);
+        Assert.Equal(new DateOnly(2026, 11, 27), periods[1].StartDate);
+        Assert.Equal(new DateOnly(2026, 12, 1), periods[1].EndDate);
+    }
+
+    [Fact]
     public async Task Every_demo_account_accepts_the_demo_password()
     {
         await SeedAsync();

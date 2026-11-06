@@ -21,6 +21,8 @@ public sealed class DependencyInjectionTests
         Assert.Same(TimeProvider.System, scope.ServiceProvider.GetRequiredService<TimeProvider>());
         Assert.IsType<IdentityPasswordHasher>(scope.ServiceProvider.GetRequiredService<IPasswordHasher>());
         Assert.IsType<UserRepository>(scope.ServiceProvider.GetRequiredService<IUserRepository>());
+        Assert.IsType<CalendarRepository>(scope.ServiceProvider.GetRequiredService<ICalendarRepository>());
+        Assert.IsType<BlockedPeriodRepository>(scope.ServiceProvider.GetRequiredService<IBlockedPeriodRepository>());
         Assert.NotNull(scope.ServiceProvider.GetRequiredService<DemoDataSeeder>());
     }
 

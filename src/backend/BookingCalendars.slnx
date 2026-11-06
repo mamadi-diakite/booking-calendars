@@ -9,5 +9,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/BookingCalendars.Api.IntegrationTests/BookingCalendars.Api.IntegrationTests.csproj" />
     <Project Path="tests/BookingCalendars.Application.Tests/BookingCalendars.Application.Tests.csproj" />
+    <Project Path="tests/BookingCalendars.Domain.Tests/BookingCalendars.Domain.Tests.csproj" />
+    <Project Path="tests/BookingCalendars.Infrastructure.Tests/BookingCalendars.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>

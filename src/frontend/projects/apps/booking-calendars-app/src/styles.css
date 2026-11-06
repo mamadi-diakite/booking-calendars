@@ -17,6 +17,22 @@
     @apply w-full rounded-md bg-teal-600 px-4 py-2 font-medium text-white hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
+  .button-secondary {
+    @apply rounded-md border border-slate-300 bg-white px-4 py-2 font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .link {
+    @apply font-medium text-teal-700 hover:underline;
+  }
+
+  .panel {
+    @apply space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
+
+  .alert-success {
+    @apply rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800;
+  }
+
   .alert-error {
     @apply rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-700;
   }

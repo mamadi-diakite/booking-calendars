@@ -4,5 +4,8 @@ export * from './lib/auth/auth.interceptor';
 export * from './lib/auth/auth.models';
 export * from './lib/auth/auth.service';
 export * from './lib/auth/session.store';
+export * from './lib/calendars/calendars.models';
+export * from './lib/calendars/calendars.service';
 export * from './lib/forms/form-submission';
+export * from './lib/load-state';
 export * from './lib/time-zones/time-zones';

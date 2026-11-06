@@ -61,6 +61,28 @@ export class AppHarness {
     await this.fixture.whenStable();
   }
 
+  async check(id: string, checked: boolean): Promise<void> {
+    const input = this.element.querySelector<HTMLInputElement>(`#${id}`)!;
+    input.checked = checked;
+    input.dispatchEvent(new Event('change'));
+    await this.fixture.whenStable();
+  }
+
+  async click(selector: string): Promise<void> {
+    this.element.querySelector<HTMLElement>(selector)!.click();
+    await this.fixture.whenStable();
+  }
+
+  /** Submits the form that holds the given element, for pages with several forms. */
+  async submitForm(selector: string): Promise<void> {
+    this.element
+      .querySelector(selector)!
+      .closest('form')!
+      .querySelector<HTMLButtonElement>('button[type="submit"]')!
+      .click();
+    await this.fixture.whenStable();
+  }
+
   async submit(): Promise<void> {
     this.element.querySelector<HTMLButtonElement>('form button[type="submit"]')!.click();
     await this.fixture.whenStable();

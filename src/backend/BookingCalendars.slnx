@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BookingCalendars.Api/BookingCalendars.Api.csproj" />
+    <Project Path="src/BookingCalendars.Application.Contracts/BookingCalendars.Application.Contracts.csproj" />
+    <Project Path="src/BookingCalendars.Application/BookingCalendars.Application.csproj" />
+    <Project Path="src/BookingCalendars.Domain/BookingCalendars.Domain.csproj" />
+    <Project Path="src/BookingCalendars.Infrastructure/BookingCalendars.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BookingCalendars.Api.IntegrationTests/BookingCalendars.Api.IntegrationTests.csproj" />
+    <Project Path="tests/BookingCalendars.Application.Tests/BookingCalendars.Application.Tests.csproj" />
+  </Folder>
+</Solution>

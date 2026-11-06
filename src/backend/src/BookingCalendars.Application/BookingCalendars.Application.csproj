@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\BookingCalendars.Application.Contracts\BookingCalendars.Application.Contracts.csproj" />
+    <ProjectReference Include="..\BookingCalendars.Domain\BookingCalendars.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
